@@ -39,10 +39,8 @@ from .cimpl import (
     TIMESTAMP_LOG_APPEND_TIME,
     TIMESTAMP_NOT_AVAILABLE,
     ConcurrentModificationException,
-    Consumer,
     IllegalStateException,
     Message,
-    Producer,
     ShareConsumer,
     TopicPartition,
     Uuid,
@@ -52,9 +50,14 @@ from .cimpl import (
     murmur2,
     version,
 )
+from .error import KafkaError, KafkaException
+
+# Runtime execution-policy stack: Producer/Consumer with the emit/fetch/
+# offset exits wired through the live, per-client policy frame stack.
+from . import _policy as policy
+from ._policy import Consumer, PolicyAdmissionError, Producer
 from .deserializing_consumer import DeserializingConsumer
 from .deserializing_share_consumer import DeserializingShareConsumer
-from .error import KafkaError, KafkaException
 from .serializing_producer import SerializingProducer
 
 __all__ = [
@@ -65,6 +68,8 @@ __all__ = [
     "aio",
     "KafkaError",
     "KafkaException",
+    "PolicyAdmissionError",
+    "policy",
     "IllegalStateException",
     "ConcurrentModificationException",
     "kafkatest",

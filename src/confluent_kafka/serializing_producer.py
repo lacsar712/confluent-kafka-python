@@ -34,7 +34,8 @@ else:
     K = TypeVar("K")
     V = TypeVar("V")
 
-from confluent_kafka.cimpl import Producer as _ProducerImpl
+from ._policy import Producer as _ProducerImpl
+from ._policy import check_emit as _policy_check_emit
 
 from ._serde_builder import (
     SharedClusterIdResolver,
@@ -254,6 +255,12 @@ class SerializingProducer(_ProducerImpl, Generic[K, V]):
             raise RuntimeError("Producer has been closed")
         if not isinstance(topic, str):
             raise TypeError("topic must be a str, not {}".format(type(topic).__name__))
+
+        # Runtime policy stack: observably reject before serializers run so a
+        # denied record can never trigger schema registration. one_more's
+        # quota is consumed by the wired super().produce() below, so this is a
+        # pure pre-check for deny_new here.
+        _policy_check_emit(self, "produce")
 
         ctx = SerializationContext(topic, MessageField.KEY, headers)
         if self._key_serializer is not None:

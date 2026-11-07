@@ -34,8 +34,9 @@ else:
     K = TypeVar("K")
     V = TypeVar("V")
 
-from confluent_kafka.cimpl import Consumer as _ConsumerImpl
 from confluent_kafka.cimpl import Message
+
+from ._policy import Consumer as _ConsumerImpl
 
 from ._serde_builder import (
     SharedClusterIdResolver,
